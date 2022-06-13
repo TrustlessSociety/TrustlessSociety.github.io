@@ -61,6 +61,11 @@
   padding: 20px;
 }
 
+.panel-left .panel-body .btn:disabled {
+  background-color: #333333 !important;
+  font-style: italic;
+}
+
 .panel-right .panel-head h1 {
   font-size: 18px;
   margin: 0 0 0 20px;

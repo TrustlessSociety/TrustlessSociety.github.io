@@ -41,6 +41,10 @@
       address: '0x60E4d786628Fea6478F785A6d7e704777c86a7c6',
       image: 'https://lh3.googleusercontent.com/lHexKRMpw-aoSyB1WdFBff5yfANLReFxHzt1DOj_sg7mS14yARpuvYcUtsyyx-Nkpk6WTcUPFoG53VnLJezYi8hAs0OxNZwlw6Y-dmI'
     },
+    nouns: {
+      address: '0x9c8ff314c9bc7f6e59a9d9225fb22946427edc03',
+      image: 'https://lh3.googleusercontent.com/vfYB4RarIqixy2-wyfP4lIdK6fsOT8uNrmKxvYCJdjdRwAMj2ZjC2zTSxL-YKky0s-4Pb6eML7ze3Ouj54HrpUlfSWx52xF_ZK2TYw'
+    }
   }
 
   const fields = {
@@ -189,6 +193,8 @@
 
     //disable button
     theme.disable(button, true)
+    button.innerHTML = 'Working...'
+    results.innerHTML = ''
 
     const throttle = parseInt(fields.throttle.value) || 10
     const address = fields.address.value.trim()
@@ -242,8 +248,15 @@
     } catch(error) {
       //enable button
       theme.disable(button, false)
+      button.innerHTML = 'Check'
       return notify('error', error.message)
     }
+
+    //enable button
+    theme.disable(button, false)
+    progress.style.width = '100%'
+    button.innerHTML = 'Check'
+    status.innerHTML = '100% Complete'
   })
 
   //------------------------------------------------------------------//
