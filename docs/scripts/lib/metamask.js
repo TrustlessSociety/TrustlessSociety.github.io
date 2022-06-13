@@ -552,6 +552,18 @@
     }
 
     /**
+     * Listens for contract events
+     * 
+     * @param {String} event 
+     * @param {Function} callback 
+     * 
+     * @returns {Function} the unsubscribe callback
+     */
+    on(event, callback) {
+      return this.resource.events[event]({}, callback).unsubscribe
+    }
+
+    /**
      * Returns a set of methods that read to the blockchain
      * 
      * @param {String} account 
@@ -563,7 +575,7 @@
       const methods = {};
       const self = this;
       for (const method of this.abi) {
-        if (method.stateMutability !== 'view') {
+        if (method.stateMutability !== 'view' && method.stateMutability !== 'pure') {
           continue;
         }
 

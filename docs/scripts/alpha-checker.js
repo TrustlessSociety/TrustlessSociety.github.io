@@ -8,7 +8,7 @@
 
   const network = MetaMaskSDK.network('ethereum')
 
-  const stiers = {
+  const alphas = {
     proof: {
       address: '0x08d7c0242953446436f34b4c78fe9da38c73668d',
       image: 'https://lh3.googleusercontent.com/ipAyQg6Xlgvwxma0Qp0a1gqdsZepRvHR4ZLsPN3mOFvIR1aznNiWFEgba2gcVqQwJS5BoJilLPrA2DRq2DVOnwKc3tDovmEdjR4qb-0'
@@ -87,15 +87,15 @@
     async task(tokenId, found) {
       const holder = await (this.contract.read().ownerOf(tokenId))
       const hits = {}
-      for (const stier in stiers) {
-        const address = stiers[stier].address
+      for (const alpha in alphas) {
+        const address = alphas[alpha].address
         const source = network
           .addContract('target', address, blocknet.abi.erc721)
           .contract('target')
         
         const balance = await (source.read().balanceOf(holder))
         if (balance > 0) {
-          hits[stier] = stiers[stier]
+          hits[alpha] = alphas[alpha]
         }
       }
 
@@ -175,12 +175,12 @@
   //------------------------------------------------------------------//
   // Events
 
-  document.getElementById('search-form').addEventListener('submit', (e) => {
+  document.getElementById('check-form').addEventListener('submit', (e) => {
     e.preventDefault()
     return false
   })
 
-  window.addEventListener('search-submit', async (e) => {
+  window.addEventListener('check-submit', async (e) => {
     const button = e.for.querySelector('button')
     //ignore double click
     if (theme.isDisabled(button)) {
@@ -207,7 +207,7 @@
       //setup the contract and get supply
       await runner.init(address)
       //run the task runner
-      await runner.run(async (tokenId, owner, stiers) => {
+      await runner.run(async (tokenId, owner, alphas) => {
         let image = ''
         try {
           const uri = await (runner.contract.read().tokenURI(tokenId))
@@ -222,7 +222,7 @@
           '{TOKEN_ID}': tokenId,
           '{OWNER}': owner,
           '{OWNER_CAT}': owner.substring(2, 7).toUpperCase(),
-          '{ICONS}': Object.keys(stiers).map(name => `<img src="${stiers[name].image}" width="50" />`).join(' '),
+          '{ICONS}': Object.keys(alphas).map(name => `<img src="${alphas[name].image}" width="50" />`).join(' '),
           '{CONTRACT}': address
         })
   

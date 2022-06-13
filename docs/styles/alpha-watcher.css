@@ -1,0 +1,119 @@
+.btn-primary {
+  text-transform: uppercase;
+}
+
+.pager .current {
+  background-color: #000000;
+  color: #FFFFFF;
+  display: inline-block;
+  padding: 8px 16px;
+}
+
+.panel-head {
+  height: 50px;
+  line-height: 50px;
+  overflow: hidden;
+  top: 0;
+}
+
+.panel-body {
+  bottom: 0;
+  overflow: auto;
+  top: 50px;
+}
+
+.panel-head, .panel-body {
+  position: absolute;
+}
+
+.panel-left .panel-head,
+.panel-left .panel-body {
+  left: 0;
+  width: 220px;
+}
+
+.panel-right .panel-head,
+.panel-right .panel-body {
+  left: 220px;
+  right: 0;
+}
+
+.panel-left .panel-head,
+.panel-right .panel-body {
+  background-color: #000000;
+}
+
+.panel-left .panel-body,
+.panel-right .panel-head {
+  background-color: #333333;
+}
+
+.panel-left .panel-head {
+  text-align: center;
+}
+
+.panel-left .panel-head img {
+  margin-top: 13px;
+  width: 140px;
+}
+
+.panel-left .panel-body form {
+  padding: 20px;
+}
+
+.panel-left .panel-body .btn:disabled {
+  background-color: #333333 !important;
+  font-style: italic;
+}
+
+.panel-right .panel-head h1 {
+  font-size: 18px;
+  margin: 0 0 0 20px;
+}
+
+.panel-right .panel-body .progress {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 20px;
+}
+
+.panel-right .panel-body .progress .progress-bar {
+  width: 100%;
+}
+
+.panel-right .panel-body .progress .progress-bar .progress-bar-meter {
+  width: 0;
+}
+
+.panel-right .panel-body .results {
+  flex-grow: 1;
+}
+
+.panel-right .panel-body .results .table {
+  border: 0;
+}
+
+.panel-right .panel-body .results th {
+  background-color: #212121;
+  color: #CCCCCC;
+  font-size: 11px;
+}
+
+.panel-right .panel-body .results td {
+  border-bottom: 1px solid #333333;
+  padding: 5px 10px;
+}
+
+.panel-right .panel-body .results td.image {
+  padding: 0;
+}
+
+.panel-right .panel-body .results td.date {
+  font-size: 11px;
+}
+
+.panel-right .panel-body .alert {
+  text-align: center;
+}

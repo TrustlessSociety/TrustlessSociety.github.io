@@ -17,6 +17,7 @@ html, body {
   background-color: #080808;
   color: #FFFFFF;
   font-family: "Open Sans", Arial;
+  margin: 0;
 }
 
 a, a:hover, a:active, a:visited {
@@ -304,6 +305,21 @@ th.sticky {
 .table.center th,
 .table.center td {
   text-align: center;
+}
+
+.table th.left,
+.table td.left {
+  text-align: left !important;
+}
+
+.table th.center,
+.table td.center {
+  text-align: center !important;
+}
+
+.table th.right,
+.table td.right {
+  text-align: right !important;
 }
 
 /* Badges

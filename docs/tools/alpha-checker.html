@@ -5,10 +5,10 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     
-    <title>S-Tier Checker - Trustless Society</title>
-    <meta property="og:title" content="S-Tier Checker - Trustless Society" />
+    <title>Alpha Checker - Trustless Society</title>
+    <meta property="og:title" content="Alpha Checker - Trustless Society" />
     <meta property="og:image" content="https://www.wearetrustless.com/images/bg-1.png" />
-    <meta property="og:url" content="https://www.wearetrustless.com/" />
+    <meta property="og:url" content="https://www.wearetrustless.com/tools/alpha-checker" />
     <meta property="og:type" content="website" />
     <meta name="msapplication-TileColor" content="#e4e4a7" />
     <meta name="theme-color" content="#ffffff" />
@@ -22,7 +22,7 @@
     <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Open+Sans" />
     <link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
     <link rel="stylesheet" type="text/css" href="/styles/theme.css?v=3" />
-    <link rel="stylesheet" type="text/css" href="/styles/stier.css?v=3" />
+    <link rel="stylesheet" type="text/css" href="/styles/alpha-checker.css?v=3" />
   </head>
   <body>
     <main class="body panel">
@@ -31,7 +31,7 @@
           <a href="/"><img src="/images/trustless-long-2.png" /></a>
         </header>
         <section class="panel-body">
-          <form id="search-form" data-do="search" data-on="submit">
+          <form id="check-form" data-do="check" data-on="submit">
             <div class="form-row">
               <label>NFT Contract Address</label>
               <input id="address" class="form-control" placeholder="eg. 0x..." type="text" value="0xc98f4e813695baaaa446c17eec51f8f1d1cdc86c" />
@@ -46,7 +46,7 @@
       </aside>
       <aside class="panel-right">
         <header class="panel-head">
-          <h1>S-Tier Checker</h1>
+          <h1>Alpha Checker</h1>
         </header>
         <section class="panel-body">
           <section class="progress">
@@ -63,7 +63,7 @@
                   <th class="sticky">&nbsp;</th>
                   <th class="sticky">ID</th>
                   <th class="sticky">Owner (<span id="owners">0</span>)</th>
-                  <th class="sticky left">S-Tier</th>
+                  <th class="sticky left">Alpha</th>
                   <th class="sticky">View</th>
                 </tr>
               </thead>
@@ -74,7 +74,7 @@
       </aside>
     </main>
     <template id="template-table-row">
-      <tr>
+      <tr data-id="{TOKEN_ID}">
         <td>{INDEX}</td>
         <td class="image">
           <a data-do="modal-open" data-on="click" data-id="{ID}" href="javascript:void(0)">
@@ -97,6 +97,6 @@
     <script type="text/javascript" src="/scripts/lib/metamask.js"></script>
     <script type="text/javascript" src="/scripts/lib/theme.js"></script>
     <script type="text/javascript" src="/scripts/networks.js"></script>
-    <script type="text/javascript" src="/scripts/stier.js"></script>
+    <script type="text/javascript" src="/scripts/alpha-checker.js"></script>
   </body>
 </html>
