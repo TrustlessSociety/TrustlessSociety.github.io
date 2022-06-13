@@ -5,10 +5,10 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     
-    <title>Alpha Checker Demo - Trustless Society</title>
-    <meta property="og:title" content="Alpha Checker - Trustless Society" />
+    <title>Alpha Watcher Demo - Trustless Society</title>
+    <meta property="og:title" content="Alpha Watcher - Trustless Society" />
     <meta property="og:image" content="https://www.wearetrustless.com/images/bg-1.png" />
-    <meta property="og:url" content="https://www.wearetrustless.com/demo/alpha-checker" />
+    <meta property="og:url" content="https://www.wearetrustless.com/demo/alpha-watcher" />
     <meta property="og:type" content="website" />
     <meta name="msapplication-TileColor" content="#e4e4a7" />
     <meta name="theme-color" content="#ffffff" />
@@ -22,7 +22,7 @@
     <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Open+Sans" />
     <link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
     <link rel="stylesheet" type="text/css" href="/styles/theme.css?v=3" />
-    <link rel="stylesheet" type="text/css" href="/styles/alpha-checker.css?v=3" />
+    <link rel="stylesheet" type="text/css" href="/styles/alpha-watcher.css?v=3" />
   </head>
   <body>
     <main class="body panel">
@@ -31,64 +31,73 @@
           <a href="/"><img src="/images/trustless-long-2.png" /></a>
         </header>
         <section class="panel-body">
-          <form id="check-form" data-do="check" data-on="submit">
+          <form id="watch-form" data-do="watch" data-on="submit">
             <div class="form-row">
               <label>NFT Contract Address</label>
-              <input id="address" class="form-control" placeholder="eg. 0x..." type="text" value="0xc98f4e813695baaaa446c17eec51f8f1d1cdc86c" />
+              <input class="form-control addresses" placeholder="eg. 0x..." type="text" />
+              <button type="button" class="btn btn-block btn-outline btn-primary" data-do="contract-add" data-on="click">Add Contract</button>
             </div>
             <div class="form-row">
-              <label>Throttle</label>
-              <input id="throttle" class="form-control" type="number" value="100" />
+              <label>
+                <input type="checkbox" class="actions" value="BOUGHT" />
+                Bought
+              </label>
+              <label>
+                <input type="checkbox" class="actions" value="SOLD" />
+                Sold
+              </label>
+              <label>
+                <input type="checkbox" class="actions" value="MINTED" />
+                Minted
+              </label>
+              <label>
+                <input type="checkbox" class="actions" value="BURNT" />
+                Burnt
+              </label>
             </div>
-            <button class="btn btn-large btn-block btn-solid btn-primary">Check</button>
+            <button class="btn btn-large btn-block btn-solid btn-primary">Filter</button>
           </form>
         </section>
       </aside>
       <aside class="panel-right">
         <header class="panel-head">
-          <h1>Alpha Checker</h1>
+          <h1>Alpha Watcher</h1>
         </header>
         <section class="panel-body">
-          <section class="progress">
-            <div class="progress-bar">
-              <div class="progress-bar-meter bg-success"></div>
-            </div>
-            <div class="progress-status"></div>
-          </section>
           <section class="results">
-            <table class="table">
+            <table class="table center">
               <thead>
                 <tr>
-                  <th id="count" class="sticky">0</th>
-                  <th class="sticky">&nbsp;</th>
-                  <th class="sticky">ID</th>
-                  <th class="sticky">Owner (<span id="owners">0</span>)</th>
-                  <th class="sticky left">Alpha</th>
-                  <th class="sticky">View</th>
+                  <th class="sticky">When</th>
+                  <th class="sticky" colspan="3">What</th>
+                  <th class="sticky" colspan="2">Who</th>
                 </tr>
               </thead>
               <tbody></tbody>
             </table>
-          </section>   
+          </section>
+          <div class="alert alert-info">
+            Listening to the Blockchain...
+          </div>
         </section>
       </aside>
     </main>
     <template id="template-table-row">
-      <tr data-id="{TOKEN_ID}">
-        <td>{INDEX}</td>
+      <tr data-action="{ACTION}" data-contract="{CONTRACT_ADDRESS}" data-token-id="{TOKEN_ID}">
+        <td class="date">now</td>
+        <td><a class="text-{COLOR}" href="https://etherscan.io/tx/{TX}" target="_blank">{ACTION}</a></td>
         <td class="image">
-          <a data-do="modal-open" data-on="click" data-id="{ID}" href="javascript:void(0)">
+          <a href="https://opensea.io/assets/ethereum/{CONTRACT_ADDRESS}/{TOKEN_ID}" target="_blank">
             <img src="{IMAGE}" width="50" />
           </a>
         </td>
-        <td>{TOKEN_ID}</td>
-        <td><a href="https://x2y2.io/user/{OWNER}/items" target="_blank"><small>{OWNER_CAT}</small></a></td>
-        <td>{ICONS}</td>
-        <td>
-          <a href="https://opensea.io/assets/ethereum/{CONTRACT}/{TOKEN_ID}" target="_blank">
-            <img src="https://opensea.io/static/images/logos/opensea.svg" width="40" />
+        <td class="left">
+          <a href="https://opensea.io/assets/ethereum/{CONTRACT_ADDRESS}/{TOKEN_ID}" target="_blank">
+            {CONTRACT_NAME} #{TOKEN_ID}
           </a>
         </td>
+        <td class="right"><a href="https://x2y2.io/user/{OWNER}/items" target="_blank"><small>{OWNER_CAT}</small></a></td>
+        <td class="left">{ICONS}</td>
       </tr>
     </template>
     <script type="text/javascript" src="/scripts/lib/web3.js"></script>
@@ -97,6 +106,6 @@
     <script type="text/javascript" src="/scripts/lib/metamask.js"></script>
     <script type="text/javascript" src="/scripts/lib/theme.js"></script>
     <script type="text/javascript" src="/scripts/networks.js"></script>
-    <script type="text/javascript" src="/scripts/alpha-checker.js"></script>
+    <script type="text/javascript" src="/scripts/alpha-watcher.js"></script>
   </body>
 </html>
