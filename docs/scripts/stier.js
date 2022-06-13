@@ -221,6 +221,7 @@
           '{IMAGE}': image.replace('ipfs://', 'https://ipfs.io/ipfs/'),
           '{TOKEN_ID}': tokenId,
           '{OWNER}': owner,
+          '{OWNER_CAT}': owner.substring(2, 7).toUpperCase(),
           '{ICONS}': Object.keys(stiers).map(name => `<img src="${stiers[name].image}" width="50" />`).join(' '),
           '{CONTRACT}': address
         })
