@@ -1,7 +1,6 @@
 (async () => {
   //sets up the MM SDK
   MetaMaskSDK.setup(blocknet)
-  
 
   //------------------------------------------------------------------//
   // Variables
@@ -55,6 +54,8 @@
   
   const results = document.querySelector('section.results table tbody')
 
+  const blockNumber = await web3.eth.getBlockNumber()
+
   //------------------------------------------------------------------//
   // Functions
 
@@ -86,7 +87,6 @@
     const fields = Array.from(document.querySelectorAll(selector))
       .map(field => field.value)
       .filter(field => !!field)
-    console.log(selector, value, fields)
     
    return !fields.length || fields.indexOf(value) !== -1
   }
@@ -95,11 +95,13 @@
   // Events
 
   web3.eth.subscribe('logs', {
+    fromBlock: blockNumber - 10,
     topics: [
       //Mint/Transfer
       '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef'
     ]
   }, async(error, event) => {
+    if (error) notify('error', error)
     if (error || event.topics.length !== 4) return
     const sender = web3.eth.abi.decodeParameter('address', event.topics[1])
     const recipient = web3.eth.abi.decodeParameter('address', event.topics[2])
@@ -107,6 +109,8 @@
     const contract = network
       .addContract('nft', event.address,  blocknet.abi.erc721)
       .contract('nft')
+
+    const date = (await web3.eth.getBlock(event.blockNumber)).timestamp * 1000
 
     let action = null
     const hits = {}
@@ -145,7 +149,11 @@
     let json = {}
     try {
       const uri = await (contract.read().tokenURI(tokenId))
-      const response = await fetch(uri.replace('ipfs://', 'https://ipfs.io/ipfs/'))
+      const response = await fetch(
+        `https://www.incept.asia/cors.php?proxy=${
+          uri.replace('ipfs://', 'https://ipfs.io/ipfs/')
+        }`
+      )
       json = await response.json()
     } catch(e) {}
     
@@ -167,7 +175,7 @@
     window.doon(row)
     toRelative(
       row.querySelector('td.date'),
-      Date.now()
+      date
     )
 
     if(!fieldHas('input.addresses', contract.address) 

@@ -1,7 +1,6 @@
 (async () => {
   //sets up the MM SDK
   MetaMaskSDK.setup(blocknet)
-  
 
   //------------------------------------------------------------------//
   // Variables
@@ -209,10 +208,19 @@
       //run the task runner
       await runner.run(async (tokenId, owner, alphas) => {
         let image = ''
+        let json = {}
         try {
           const uri = await (runner.contract.read().tokenURI(tokenId))
-          const response = await fetch(uri.replace('ipfs://', 'https://ipfs.io/ipfs/'))
-          const json = await response.json()
+          console.log(uri.indexOf('data:'))
+          if (uri.indexOf('data:') === 0) {
+            json = atob(uri.split('base64,')[1])
+          } else {
+            const response = await fetch(`https://www.incept.asia/cors.php?proxy=${
+              uri.replace('ipfs://', 'https://ipfs.io/ipfs/')
+            }`)
+            json = await response.json()
+          }
+          
           image = json.image
         } catch(e) {}
         
