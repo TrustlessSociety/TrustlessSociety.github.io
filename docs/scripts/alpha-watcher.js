@@ -48,6 +48,13 @@
     }
   }
 
+  const whales = {
+    'eatbutt.eth': {
+      address: '0xf2659a2b2b928a0555bf1596ebf2c30aa4b34a31',
+      image: 'https://openseauserdata.com/files/3a0c016cec3123ea6a9a94637f23730b.jpg'
+    }
+  }
+
   const template = {
     row: document.getElementById('template-table-row').innerHTML
   }
@@ -91,6 +98,35 @@
    return !fields.length || fields.indexOf(value) !== -1
   }
 
+  const render = ({ contract, date, hash, action, image, name, tokenId, owner, alias, groups }) => {
+    const row = theme.toElement(template.row, {
+      '{TX}': hash,
+      '{COLOR}': ['sold', 'burnt'].indexOf(action) !== -1 ? 'danger': 'success',
+      '{ACTION}': action.toUpperCase(),
+      '{IMAGE}': image.replace('ipfs://', 'https://ipfs.io/ipfs/'),
+      '{CONTRACT_NAME}': name,
+      '{TOKEN_ID}': tokenId,
+      '{OWNER}': owner,
+      '{OWNER_CAT}': alias,
+      '{ICONS}': Object.keys(groups).map(name => `<img src="${alphas[name].image}" width="50" />`).join(' '),
+      '{CONTRACT_ADDRESS}': contract
+    })
+
+    theme.hide('.panel-body .alert', true)
+    results.prepend(row)
+    window.doon(row)
+    toRelative(
+      row.querySelector('td.date'),
+      date
+    )
+
+    if(!fieldHas('input.addresses', contract) 
+      || !fieldHas('input.actions:checked', action.toUpperCase())
+    ) {
+      theme.hide(row, true)
+    }
+  }
+
   //------------------------------------------------------------------//
   // Events
 
@@ -111,77 +147,74 @@
       .contract('nft')
 
     const date = (await web3.eth.getBlock(event.blockNumber)).timestamp * 1000
+    const bought = { action: zero.test(sender) ? 'minted': 'bought', alphas: {} }
+    const sold = { action: zero.test(recipient) ? 'burnt': 'sold', alphas: {} }
 
-    let action = null
-    const hits = {}
     for (const alpha in alphas) {
       const source = network
         .addContract('target', alphas[alpha].address, blocknet.abi.erc721)
         .contract('target')
 
-      if (action !== 'sold' 
-        && !zero.test(recipient)
-        && (await (source.read().balanceOf(recipient))) > 0
-      ) {
-        hits[alpha] = alphas[alpha]
-        action = 'bought'
-      } else if (action !== 'bought' 
-        && !zero.test(sender)
-        && (await (source.read().balanceOf(sender))) > 0
-      ) {
-        hits[alpha] = alphas[alpha]
-        action = 'sold'
+      if (!zero.test(recipient) && (await (source.read().balanceOf(recipient))) > 0) {
+        bought.alphas[alpha] = alphas[alpha]
+      } else if (!zero.test(sender) && (await (source.read().balanceOf(sender))) > 0) {
+        sold.alphas[alpha] = alphas[alpha]
       } 
     }
 
-    if (!action || !Object.keys(hits).length) return
-
-    const direction = action === 'sold' ? 'out': 'in'
-
-    if (direction === 'in' && zero.test(sender)) {
-      action = 'minted'
-    } else if (direction === 'out' && zero.test(recipient)) {
-      action = 'burnt'
+    for (const whale in whales) {
+      if (whale.toLowerCase() === recipient.toLowerCase()) {
+        bought.alias = whale
+        bought.alphas[whale] = whales[whale]
+      } else if (whale.toLowerCase() === sender.toLowerCase()) {
+        sold.alias = whale
+        sold.alphas[whale] = whales[whale]
+      }
     }
 
-    const owner = direction === 'out' ? sender: recipient
-    
     let json = {}
     try {
       const uri = await (contract.read().tokenURI(tokenId))
-      const response = await fetch(
-        `https://www.incept.asia/cors.php?proxy=${
+      if (uri.indexOf('data:') === 0) {
+        json = atob(uri.split('base64,')[1])
+      } else {
+        const response = await fetch(`https://www.incept.asia/cors.php?proxy=${
           uri.replace('ipfs://', 'https://ipfs.io/ipfs/')
-        }`
-      )
-      json = await response.json()
+        }`)
+        json = await response.json()
+      }
     } catch(e) {}
-    
-    const row = theme.toElement(template.row, {
-      '{TX}': event.transactionHash,
-      '{COLOR}': direction === 'out' ? 'danger': 'success',
-      '{ACTION}': action.toUpperCase(),
-      '{IMAGE}': (json.image || '').replace('ipfs://', 'https://ipfs.io/ipfs/'),
-      '{CONTRACT_NAME}': await (contract.read().name()),
-      '{TOKEN_ID}': tokenId,
-      '{OWNER}': owner,
-      '{OWNER_CAT}': owner.substring(2, 7).toUpperCase(),
-      '{ICONS}': Object.keys(hits).map(name => `<img src="${alphas[name].image}" width="50" />`).join(' '),
-      '{CONTRACT_ADDRESS}': contract.address
-    })
 
-    theme.hide('.panel-body .alert', true)
-    results.prepend(row)
-    window.doon(row)
-    toRelative(
-      row.querySelector('td.date'),
-      date
-    )
+    const contractName = await (contract.read().name())
 
-    if(!fieldHas('input.addresses', contract.address) 
-      || !fieldHas('input.actions:checked', action.toUpperCase())
-    ) {
-      theme.hide(row, true)
+    if (!zero.test(recipient) && Object.keys(bought.alphas).length) {
+      render({ 
+        contract: contract.address, 
+        date: date,
+        hash: event.transactionHash, 
+        action: bought.action, 
+        image: json.image || '', 
+        name: contractName, 
+        tokenId: tokenId, 
+        owner: recipient, 
+        alias: bought.alias || recipient.substring(2, 7).toUpperCase(), 
+        groups: bought.alphas
+      })
+    }
+
+    if (!zero.test(sender) && Object.keys(sold.alphas).length) {
+      render({ 
+        contract: contract.address, 
+        date: date,
+        hash: event.transactionHash, 
+        action: sold.action, 
+        image: json.image || '', 
+        name: contractName, 
+        tokenId: tokenId, 
+        owner: sender, 
+        alias: sold.alias || sender.substring(2, 7).toUpperCase(), 
+        groups: sold.alphas
+      })
     }
   });
 

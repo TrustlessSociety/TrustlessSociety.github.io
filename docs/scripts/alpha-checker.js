@@ -211,7 +211,6 @@
         let json = {}
         try {
           const uri = await (runner.contract.read().tokenURI(tokenId))
-          console.log(uri.indexOf('data:'))
           if (uri.indexOf('data:') === 0) {
             json = atob(uri.split('base64,')[1])
           } else {
