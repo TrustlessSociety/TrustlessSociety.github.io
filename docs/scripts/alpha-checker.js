@@ -220,7 +220,7 @@
             json = await response.json()
           }
           
-          image = json.image
+          image = json.image || ''
         } catch(e) {}
         
         const row = theme.toElement(template.row, {
