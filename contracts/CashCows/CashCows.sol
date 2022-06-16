@@ -24,6 +24,7 @@ import "erc721b/contracts/ERC721B.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
 contract CashCows is 
   Ownable, 
@@ -40,25 +41,31 @@ contract CashCows is
   bytes32 private constant _MINTER_ROLE = keccak256("MINTER_ROLE");
   bytes32 private constant _CURATOR_ROLE = keccak256("CURATOR_ROLE");
   bytes32 private constant _TRANSFER_ROLE = keccak256("TRANSFER_ROLE");
+  
   //bytes4(keccak256("royaltyInfo(uint256,uint256)")) == 0x2a55205a
   bytes4 private constant _INTERFACE_ID_ERC2981 = 0x2a55205a;
+  
   //max amount that can be minted in this collection
   uint16 public constant MAX_SUPPLY = 7777;
   //where 10000 == 100.00%
   uint256 public constant ROYALTY_FOR_ALL = 1000;
-  //maximum amount that can be purchased per wallet
-  uint256 public constant MAX_PER_WALLET = 10;
   //the sale price per token
   uint256 public constant MINT_PRICE = 0.005 ether;
-  //maximum amount free per wallet
-  uint256 public constant MAX_FREE_PER_WALLET = 5;
-  //the preview uri json
+
+  //maximum amount that can be purchased per wallet in the public sale
+  uint256 public constant MAX_PER_WALLET = 10;
+  //maximum amount free per wallet in the public sale
+  uint256 public constant MAX_FREE_PER_WALLET = 3;
+
+  //immutable preview uri json
   string private _PREVIEW_URI;
 
   // ============ Storage ============
 
   //mapping of address to amount minted
   mapping(address => uint256) public minted;
+  //mapping of address to authorized
+  mapping(address => bool) public authorized;
   //flag for if the sales has started
   bool public saleStarted;
   //base URI
@@ -154,6 +161,57 @@ contract CashCows is
       revert InvalidCall();
 
     minted[recipient] += quantity;
+    _safeMint(recipient, quantity);
+  }
+
+  /**
+   * @dev Allows anyone to get a token that was approved by the owner
+   */
+  function mint(
+    uint256 quantity, 
+    uint256 maxMint, 
+    uint256 maxFree, 
+    bytes memory proof
+  ) external payable nonReentrant {
+    address recipient = _msgSender();
+    //valid amount?
+    if (quantity == 0 
+      //already authorized?
+      || authorized[recipient]
+      //the quantity here plus the current amount already minted 
+      //should be less than the max purchase amount
+      || (quantity + minted[recipient]) > maxMint
+      //the quantity being minted should not exceed the max supply
+      || (totalSupply() + quantity) > MAX_SUPPLY
+      //make sure the minter signed this off
+      || !hasRole(_MINTER_ROLE, ECDSA.recover(
+        ECDSA.toEthSignedMessageHash(
+          keccak256(abi.encodePacked(
+            "authorized", 
+            recipient, 
+            quantity,
+            maxMint,
+            maxFree
+          ))
+        ),
+        proof
+      ))
+    ) revert InvalidCall();
+
+    //if there are still some free
+    if (minted[recipient] < maxFree) {
+      //find out how much left is free
+      uint256 freeLeft = maxFree - minted[recipient];
+      //if some of the quantity still needs to be paid
+      if (freeLeft < quantity 
+        // and what is sent is less than what needs to be paid 
+        && ((quantity - freeLeft) * MINT_PRICE) > msg.value
+      ) revert InvalidCall();
+    //the value sent should be the price times quantity
+    } else if ((quantity * MINT_PRICE) > msg.value) 
+      revert InvalidCall();
+
+    authorized[recipient] = true;
     _safeMint(recipient, quantity);
   }
 
