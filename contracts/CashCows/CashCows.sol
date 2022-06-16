@@ -64,8 +64,6 @@ contract CashCows is
 
   //mapping of address to amount minted
   mapping(address => uint256) public minted;
-  //mapping of address to authorized
-  mapping(address => bool) public authorized;
   //flag for if the sales has started
   bool public saleStarted;
   //base URI
@@ -129,8 +127,7 @@ contract CashCows is
 
   /**
    * @dev Creates a new token for the `recipient`. Its token ID will be 
-   * automatically assigned (and available on the emitted 
-   * {IERC721-Transfer} event)
+   * automatically assigned
    */
   function mint(uint256 quantity) external payable nonReentrant {
     address recipient = _msgSender();
@@ -165,7 +162,7 @@ contract CashCows is
   }
 
   /**
-   * @dev Allows anyone to get a token that was approved by the owner
+   * @dev Allows anyone to gemintt a token that was approved by the owner
    */
   function mint(
     uint256 quantity, 
@@ -176,8 +173,6 @@ contract CashCows is
     address recipient = _msgSender();
     //valid amount?
     if (quantity == 0 
-      //already authorized?
-      || authorized[recipient]
       //the quantity here plus the current amount already minted 
       //should be less than the max purchase amount
       || (quantity + minted[recipient]) > maxMint
@@ -211,7 +206,7 @@ contract CashCows is
     } else if ((quantity * MINT_PRICE) > msg.value) 
       revert InvalidCall();
 
-    authorized[recipient] = true;
+    minted[recipient] += quantity;
     _safeMint(recipient, quantity);
   }
 
