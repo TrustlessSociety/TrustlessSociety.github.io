@@ -125,6 +125,13 @@
     ) {
       theme.hide(row, true)
     }
+
+    const maxItems = 200
+    if (results.children.length > maxItems) {
+      for (let i = maxItems; i < results.children.length; i++) {
+        results.removeChild(results.children[i])
+      }
+    }
   }
 
   //------------------------------------------------------------------//
