@@ -104,12 +104,3 @@ dist
 .tern-port
 
 .DS_Store
-
-cache/
-
-artifacts/@openzeppelin
-artifacts/build-info
-artifacts/erc721b
-artifacts/hardhat
-
-*.dbg.json
