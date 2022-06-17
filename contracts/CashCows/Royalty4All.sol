@@ -242,6 +242,8 @@ contract Royalty4All is Context, ReentrancyGuard {
       if (payment == 0) continue;
       //add released payment
       _ethReleased[tokenIds[i]] += payment;
+      //add to total payment
+      totalPayment += payment;
     }
     //if no payments are due
     if (totalPayment == 0) revert InvalidCall();
@@ -276,6 +278,8 @@ contract Royalty4All is Context, ReentrancyGuard {
       if (payment == 0) continue;
       //add released payment
       _erc20Released[token][tokenIds[i]] += payment;
+      //add to total payment
+      totalPayment += payment;
     }
     //if no payments are due
     if (totalPayment == 0) revert InvalidCall();

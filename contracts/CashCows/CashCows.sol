@@ -47,10 +47,10 @@ contract CashCows is
   
   //max amount that can be minted in this collection
   uint16 public constant MAX_SUPPLY = 7777;
-  //where 10000 == 100.00%
-  uint256 public constant ROYALTY_FOR_ALL = 1000;
   //the sale price per token
   uint256 public constant MINT_PRICE = 0.005 ether;
+  //where 10000 == 100.00%
+  uint256 public ROYALTY_FOR_ALL = 1000;
 
   //maximum amount that can be purchased per wallet in the public sale
   uint256 public constant MAX_PER_WALLET = 10;
@@ -171,8 +171,11 @@ contract CashCows is
     bytes memory proof
   ) external payable nonReentrant {
     address recipient = _msgSender();
+
     //valid amount?
     if (quantity == 0 
+      //free cannot be more than max
+      || maxMint < maxFree
       //the quantity here plus the current amount already minted 
       //should be less than the max purchase amount
       || (quantity + minted[recipient]) > maxMint
@@ -182,9 +185,8 @@ contract CashCows is
       || !hasRole(_MINTER_ROLE, ECDSA.recover(
         ECDSA.toEthSignedMessageHash(
           keccak256(abi.encodePacked(
-            "authorized", 
+            "mint", 
             recipient, 
-            quantity,
             maxMint,
             maxFree
           ))
@@ -286,6 +288,15 @@ contract CashCows is
    */
   function updateTreasury(address treasury) external onlyRole(_CURATOR_ROLE) {
     TREASURY = treasury;
+  }
+
+  /**
+   * @dev Updates the royalty (provisions for Cow DAO) 
+   * where `percent` up to 1000 == 10.00%
+   */
+  function updateRoyalty(uint256 percent) external onlyRole(_CURATOR_ROLE) {
+    if (percent > 1000) revert InvalidCall();
+    ROYALTY_FOR_ALL = percent;
   }
   
   /**
