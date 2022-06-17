@@ -110,5 +110,6 @@ cache/
 artifacts/@openzeppelin
 artifacts/build-info
 artifacts/erc721b
+artifacts/hardhat
 
 *.dbg.json
