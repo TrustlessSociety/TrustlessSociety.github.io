@@ -288,4 +288,16 @@ describe('CashCows Tests', function () {
     expect(info.receiver).to.equal(admin.address)
     expect(info.royaltyAmount).to.equal(100)
   })
+
+  it('Should allow OS to transfer', async function () {
+    const { admin, tokenOwner2, tokenOwner3} = this.signers
+
+    await expect(
+      admin.withNFT.transferFrom(tokenOwner3.address, tokenOwner2.address, 27)
+    ).to.be.revertedWith('InvalidCall()')
+
+    await admin.withNFT.grantRole(getRole('APPROVED_ROLE'), admin.address)
+    await admin.withNFT.transferFrom(tokenOwner3.address, tokenOwner2.address, 27)
+    expect(await admin.withNFT.ownerOf(27)).to.equal(tokenOwner2.address)
+  })
 })

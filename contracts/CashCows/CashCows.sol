@@ -38,9 +38,10 @@ contract CashCows is
   // ============ Constants ============
 
   //roles
+  bytes32 private constant _DAO_ROLE = keccak256("DAO_ROLE");
   bytes32 private constant _MINTER_ROLE = keccak256("MINTER_ROLE");
   bytes32 private constant _CURATOR_ROLE = keccak256("CURATOR_ROLE");
-  bytes32 private constant _TRANSFER_ROLE = keccak256("TRANSFER_ROLE");
+  bytes32 private constant _APPROVED_ROLE = keccak256("APPROVED_ROLE");
   
   //bytes4(keccak256("royaltyInfo(uint256,uint256)")) == 0x2a55205a
   bytes4 private constant _INTERFACE_ID_ERC2981 = 0x2a55205a;
@@ -82,6 +83,24 @@ contract CashCows is
   }
   
   // ============ Read Methods ============
+
+  /**
+   * @dev Override isApprovedForAll to whitelist marketplaces 
+   * to enable gas-less listings.
+   *
+   * OS Rinkeby: 0xf57b2c51ded3a29e6891aba85459d600256cf317
+   * OS Mainnet: 0xa5409ec958c83c3f309868babaca7c86dcb077c1
+   */
+  function isApprovedForAll(
+    address owner, 
+    address operator
+  ) public view override(ERC721B, IERC721) returns(bool) {
+    if (hasRole(_APPROVED_ROLE, operator)) {
+      return true;
+    }
+
+    return super.isApprovedForAll(owner, operator);
+  }
 
   /**
    * @dev Returns the token collection name.
@@ -212,23 +231,6 @@ contract CashCows is
     _safeMint(recipient, quantity);
   }
 
-  /**
-   * @dev Instead of the owner needing to approve (and pay gas), the 
-   * operator can safely transfer. This is a provision to integrate
-   * other contracts in the future. For example hard staking and multi
-   * chain NFTs using a fault tolerant oracle bridge :)
-   */
-  function operatorTransferFrom(
-    address from,
-    address to,
-    uint256 tokenId,
-    bytes memory _data
-  ) external onlyRole(_TRANSFER_ROLE) {
-    //only contracts with transfer role can transfer
-    if (_msgSender().code.length == 0) revert InvalidCall();
-    _safeTransfer(from, to, tokenId, _data);
-  }
-
   /** 
    * @dev ERC165 bytes to add to interface array - set in parent contract
    *  implementing this standard
@@ -283,20 +285,20 @@ contract CashCows is
   }
 
   /**
+   * @dev Updates the royalty (provisions for Cow DAO) 
+   * where `percent` up to 1000 == 10.00%
+   */
+  function updateRoyalty(uint256 percent) external onlyRole(_DAO_ROLE) {
+    if (percent > 1000) revert InvalidCall();
+    ROYALTY_FOR_ALL = percent;
+  }
+
+  /**
    * @dev Updates the treasury location, (in the case treasury needs to 
    * be updated)
    */
   function updateTreasury(address treasury) external onlyRole(_CURATOR_ROLE) {
     TREASURY = treasury;
-  }
-
-  /**
-   * @dev Updates the royalty (provisions for Cow DAO) 
-   * where `percent` up to 1000 == 10.00%
-   */
-  function updateRoyalty(uint256 percent) external onlyRole(_CURATOR_ROLE) {
-    if (percent > 1000) revert InvalidCall();
-    ROYALTY_FOR_ALL = percent;
   }
   
   /**
